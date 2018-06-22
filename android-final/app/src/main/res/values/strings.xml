@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">記帳小幫手</string>
+
+    <string name="addAccount">增加帳目</string>
+    <string name="accountRecord">帳目紀錄</string>
+    <string name="analysisAccount">分析帳目</string>
+
+    <string name="date">日期</string>
+    <string name="method">方法</string>
+    <string-array name="methods">
+        <item>支出</item>
+        <item>收入</item>
+    </string-array>
+
+    <string name="item">項目</string>
+
+    <string-array name="incomeItems">
+        <item>薪水</item>
+        <item>家裡</item>
+        <item>投資</item>
+        <item>販售</item>
+        <item>其它</item>
+    </string-array>
+
+    <string-array name="expendItems">
+        <item>飲食</item>
+        <item>衣裝</item>
+        <item>住宅</item>
+        <item>交通</item>
+        <item>教育</item>
+        <item>娛樂</item>
+        <item>其它</item>
+    </string-array>
+
+    <string name="comment">附註</string>
+    <string name="amount">金額</string>
+
+    <string name="add">加入</string>
+
+    <string-array name="drawerItem">
+        <item>記帳</item>
+        <item>檢視</item>
+        <item>分析</item>
+    </string-array>
+
+    <string name="modify">修改</string>
+    <string name="delete">刪除</string>
+</resources>
