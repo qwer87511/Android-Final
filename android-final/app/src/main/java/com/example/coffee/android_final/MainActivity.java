@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mActBarDrawerToggle;
-    private Button mBtnAdd;
 
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
@@ -63,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
         // 設定 view pager
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        mBtnAdd = getLayoutInflater().inflate(R.layout.fragment_add_account, null).findViewById(R.id.btnAdd);
         mTabLayout = (TabLayout) findViewById(R.id.tab);
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
 
@@ -152,6 +150,13 @@ public class MainActivity extends AppCompatActivity {
                     recordFragment.createList(addAccountFragment.getAccountDataList());
                     break;
                 case 2:
+                    try {
+                        analysisFragment.analysis(addAccountFragment.getAccountDataList());
+                    }
+                    catch (IllegalStateException e) {
+                        Toast.makeText(MainActivity.this, "請先點擊 「帳目紀錄」 再點擊 「帳目分析」", Toast.LENGTH_LONG).show();
+                    }
+
                     break;
                 default:
                     break;

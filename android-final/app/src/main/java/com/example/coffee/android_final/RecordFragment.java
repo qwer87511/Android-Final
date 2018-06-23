@@ -20,9 +20,9 @@ import java.util.ArrayList;
 
 public class RecordFragment extends Fragment {
 
-    //private ArrayAdapter<String> listDataAdapter;
-    private ListView mListData;
+    private ArrayAdapter<String> listDataAdapter;
     private int longClickedItemIndex;
+    private ListView mListData;
 
     public RecordFragment() {
         // Required empty public constructor
@@ -31,6 +31,7 @@ public class RecordFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        listDataAdapter = new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_list_item_1);
     }
 
     @Override
@@ -48,6 +49,7 @@ public class RecordFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         mListData.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         mListData.clearChoices();
+        mListData.setAdapter(listDataAdapter);
         // !!! 設定 OnItemLongClickListener "可能"導致無法使用 Context Menu，解決方法在下 !!!
         mListData.setOnItemLongClickListener(listDataOnLongClickListener);
     }
@@ -64,12 +66,11 @@ public class RecordFragment extends Fragment {
     }
 
     public void createList(ArrayList<ContentValues> accountDataList){
-        ArrayAdapter<String> listDataAdapter = new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_list_item_1);
+        listDataAdapter.clear();
         for (int i = 0; i < accountDataList.size(); ++i) {
             listDataAdapter.add(accountDataToString(accountDataList.get(i)));
         }
         listDataAdapter.notifyDataSetChanged();
-        mListData.setAdapter(listDataAdapter);
         mListData.clearChoices();
         mListData.requestLayout();
     }
@@ -78,12 +79,6 @@ public class RecordFragment extends Fragment {
         return longClickedItemIndex;
     }
 
-    /*public void deleteLongClickedItem() {
-        listDataAdapter.remove(accountDataToString(accountDataList.get(longClickedItemIndex)));
-        accountDataList.remove(longClickedItemIndex);
-        listDataAdapter.notifyDataSetChanged();
-    }*/
-
     private ListView.OnItemLongClickListener listDataOnLongClickListener = new ListView.OnItemLongClickListener() {
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -91,15 +86,7 @@ public class RecordFragment extends Fragment {
             return false; // !!! 必須回傳false 否則無法呼叫 context menu !!! // CANNOT consumed the long click
         }
     };
-/*
-    public void addAccount(ContentValues data) {
-        accountDataList.add(data);
-        listDataAdapter.add(accountDataToString(data));
-        listDataAdapter.notifyDataSetChanged();
-        mListData.clearChoices();
-        mListData.requestLayout();
-    }
-*/
+
     public String accountDataToString(ContentValues contentValues) {
         String string = "";
         string += "日期: " + String.valueOf(contentValues.getAsInteger("year")) + " / " +

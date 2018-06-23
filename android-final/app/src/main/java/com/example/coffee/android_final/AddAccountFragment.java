@@ -28,6 +28,9 @@ public class AddAccountFragment extends Fragment {
 
     private ArrayList<ContentValues> accountDataList;
 
+    private ArrayAdapter<String> spnExpendAdapter;
+    private ArrayAdapter<String> spnIncomeAdapter;
+
     private DatePicker mDatePicker;
     private Spinner mSpnMethod;
     private Spinner mSpnItem;
@@ -45,6 +48,32 @@ public class AddAccountFragment extends Fragment {
 
         mContentResolver = getActivity().getContentResolver();
         accountDataList = new ArrayList<>();
+        spnExpendAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.expendItems));
+        spnIncomeAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.incomeItems));
+        spnExpendAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spnIncomeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // 讀檔 // !!! 不可以放在onActivityCreate否則會讀很多次 !!!
+        Cursor cursor = mContentResolver.query(AccountDataContentProvider.CONTENT_URI, null,
+                null, null, null);
+
+        if (cursor != null) {
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put("_id", cursor.getInt(0));
+                contentValues.put("year", cursor.getInt(1));
+                contentValues.put("month", cursor.getInt(2));
+                contentValues.put("day", cursor.getInt(3));
+                contentValues.put("method", cursor.getString(4));
+                contentValues.put("item", cursor.getString(5));
+                contentValues.put("comment", cursor.getString(6));
+                contentValues.put("amount", cursor.getInt(7));
+                accountDataList.add(contentValues);
+                cursor.moveToNext();
+            }
+            cursor.close();
+        }
     }
 
     @Override
@@ -68,45 +97,19 @@ public class AddAccountFragment extends Fragment {
         mBtnAdd = view.findViewById(R.id.btnAdd);
         mBtnAdd.setOnClickListener(btnAddOnClick);
         mSpnMethod.setOnItemSelectedListener(spnMethodOnSelected);
-
-        // 讀檔
-        Cursor cursor = mContentResolver.query(AccountDataContentProvider.CONTENT_URI, null,
-                null, null, null);
-
-        if (cursor != null) {
-            cursor.moveToFirst();
-            while (!cursor.isAfterLast()) {
-                ContentValues contentValues = new ContentValues();
-                contentValues.put("_id", cursor.getInt(0));
-                contentValues.put("year", cursor.getInt(1));
-                contentValues.put("month", cursor.getInt(2));
-                contentValues.put("day", cursor.getInt(3));
-                contentValues.put("method", cursor.getString(4));
-                contentValues.put("item", cursor.getString(5));
-                contentValues.put("comment", cursor.getString(6));
-                contentValues.put("amount", cursor.getInt(7));
-                accountDataList.add(contentValues);
-
-                cursor.moveToNext();
-            }
-            cursor.close();
-        }
     }
 
+    // 當方法被選擇，項目就會改變
     private AdapterView.OnItemSelectedListener spnMethodOnSelected = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             ArrayAdapter<String> spnAdapter;
             switch (position) {
-                case 0:
-                    spnAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.expendItems));
-                    spnAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    mSpnItem.setAdapter(spnAdapter);
+                case 0: // 選擇支出
+                    mSpnItem.setAdapter(spnExpendAdapter);
                     break;
-                case 1:
-                    spnAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.incomeItems));
-                    spnAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    mSpnItem.setAdapter(spnAdapter);
+                case 1: // 選擇收入
+                    mSpnItem.setAdapter(spnIncomeAdapter);
                     break;
                 default:
                     break;
@@ -122,9 +125,15 @@ public class AddAccountFragment extends Fragment {
     private View.OnClickListener btnAddOnClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            ContentValues contentValues = getAccountData();
-            accountDataList.add(contentValues);
-            mContentResolver.insert(AccountDataContentProvider.CONTENT_URI, contentValues);
+            if(mEdtAmount.getText().toString().equals("")) {
+                Toast.makeText(getContext(), "請輸入金額", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                ContentValues contentValues = getAccountData();
+                accountDataList.add(contentValues);
+                mContentResolver.insert(AccountDataContentProvider.CONTENT_URI, contentValues);
+                Toast.makeText(getContext(), "加入成功", Toast.LENGTH_SHORT).show();
+            }
         }
     };
 
@@ -141,14 +150,26 @@ public class AddAccountFragment extends Fragment {
     }
 
     public ArrayList<ContentValues> getAccountDataList() {
-        return accountDataList;
+        return new ArrayList<>(accountDataList);
     }
 
     public void setAccountDataByIndex(int index) {
         ContentValues contentValues = accountDataList.get(index);
         mDatePicker.updateDate(contentValues.getAsInteger("year"), contentValues.getAsInteger("month") - 1, contentValues.getAsInteger("day"));
-        mSpnMethod.setSelection(new ArrayList<String>(Arrays.asList(getResources().getStringArray(R.array.methods)))
-                .indexOf(contentValues.getAsString("method")));
+        String method = contentValues.getAsString("method");
+        mSpnMethod.setSelection(Arrays.asList(getResources().getStringArray(R.array.methods)).indexOf(method));
+        if(method.equals("支出"))
+        {
+            mSpnItem.setAdapter(spnExpendAdapter);
+            mSpnItem.setSelection(Arrays.asList(getResources().getStringArray(R.array.expendItems)).indexOf(contentValues.getAsString("item")));
+        }
+        else
+        {
+            mSpnItem.setAdapter(spnIncomeAdapter);
+            mSpnItem.setSelection(Arrays.asList(getResources().getStringArray(R.array.incomeItems)).indexOf(contentValues.getAsString("item")));
+        }
+        mEdtComment.setText(contentValues.getAsString("comment"));
+        mEdtAmount.setText(contentValues.getAsString("amount"));
     }
 
     public void deleteAccountDataByIndex(int index) {
