@@ -2,9 +2,7 @@ package com.example.coffee.android_final;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -21,6 +19,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 
 public class AddAccountFragment extends Fragment {
 
@@ -128,6 +128,9 @@ public class AddAccountFragment extends Fragment {
             if(mEdtAmount.getText().toString().equals("")) {
                 Toast.makeText(getContext(), "請輸入金額", Toast.LENGTH_SHORT).show();
             }
+            else if(isFutureDate(mDatePicker.getYear(), mDatePicker.getMonth(), mDatePicker.getDayOfMonth())) {
+                Toast.makeText(getContext(), "不可輸入未來日期", Toast.LENGTH_SHORT).show();
+            }
             else {
                 ContentValues contentValues = getAccountData();
                 accountDataList.add(contentValues);
@@ -136,6 +139,13 @@ public class AddAccountFragment extends Fragment {
             }
         }
     };
+
+    private boolean isFutureDate(int year, int month, int day) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, day);
+        Date oldDate = calendar.getTime();
+        return new Date().getTime() - oldDate.getTime() < 0;
+    }
 
     private ContentValues getAccountData() {
         ContentValues contentValues = new ContentValues();
@@ -150,7 +160,31 @@ public class AddAccountFragment extends Fragment {
     }
 
     public ArrayList<ContentValues> getAccountDataList() {
+        sortByDate(accountDataList);
         return new ArrayList<>(accountDataList);
+    }
+
+    private boolean isLast(ContentValues last, ContentValues old) {
+        int lastYear = last.getAsInteger("year");
+        int lastMonth = last.getAsInteger("month");
+        int lastDay = last.getAsInteger("day");
+        int oldYear = old.getAsInteger("year");
+        int oldMonth = old.getAsInteger("month");
+        int oldDay = old.getAsInteger("day");
+        return (lastYear > oldYear) || (lastYear == oldYear && lastMonth > oldMonth) || (lastYear == oldYear && lastMonth == oldMonth && lastDay > oldDay);
+    }
+
+    private void sortByDate(ArrayList<ContentValues> dataList) {
+        for(int i = 0; i < dataList.size(); i++) {
+            int last = i;
+            for(int j = i + 1; j < dataList.size(); j++) {
+                if(!isLast(dataList.get(last), dataList.get(j)))
+                    last = j;
+            }
+            ContentValues temp = dataList.get(last);
+            dataList.set(last, dataList.get(i));
+            dataList.set(i, temp);
+        }
     }
 
     public void setAccountDataByIndex(int index) {
