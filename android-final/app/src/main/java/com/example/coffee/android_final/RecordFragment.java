@@ -2,8 +2,6 @@ package com.example.coffee.android_final;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.ContextMenu;
@@ -90,7 +88,7 @@ public class RecordFragment extends Fragment {
     public String accountDataToString(ContentValues contentValues) {
         String string = "";
         string += "日期: " + String.valueOf(contentValues.getAsInteger("year")) + " / " +
-                String.valueOf(contentValues.getAsInteger("month")) + " / " +
+                String.valueOf(contentValues.getAsInteger("month") + 1) + " / " +
                 String.valueOf(contentValues.getAsInteger("day")) + "\n" +
                 "方法: " + contentValues.getAsString("method") + " " +
                 "項目: " + contentValues.getAsString("item") + " " +
