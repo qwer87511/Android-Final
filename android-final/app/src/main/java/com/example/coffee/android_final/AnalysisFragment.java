@@ -70,6 +70,11 @@ public class AnalysisFragment extends Fragment {
     }
 
     public void analysis(ArrayList<ContentValues> nAccountDataList) {
+        if(nAccountDataList == null || nAccountDataList.size() == 0)
+        {
+            Toast.makeText(getContext(), "沒有資料",Toast.LENGTH_SHORT).show();
+            return;
+        }
         accountDataList = nAccountDataList;
         int num = nAccountDataList.size();
         int[] expands = new int[7];

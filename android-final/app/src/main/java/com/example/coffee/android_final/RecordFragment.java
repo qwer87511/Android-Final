@@ -63,10 +63,15 @@ public class RecordFragment extends Fragment {
         return super.onContextItemSelected(item);
     }
 
-    public void createList(ArrayList<ContentValues> accountDataList){
+    public void createList(ArrayList<ContentValues> nAccountDataList){
         listDataAdapter.clear();
-        for (int i = 0; i < accountDataList.size(); ++i) {
-            listDataAdapter.add(accountDataToString(accountDataList.get(i)));
+        if(nAccountDataList == null || nAccountDataList.size() == 0)
+        {
+            Toast.makeText(getContext(), "沒有資料",Toast.LENGTH_SHORT).show();
+            return;
+        }
+        for (int i = 0; i < nAccountDataList.size(); ++i) {
+            listDataAdapter.add(accountDataToString(nAccountDataList.get(i)));
         }
         listDataAdapter.notifyDataSetChanged();
         mListData.clearChoices();
@@ -93,7 +98,7 @@ public class RecordFragment extends Fragment {
                 "方法: " + contentValues.getAsString("method") + " " +
                 "項目: " + contentValues.getAsString("item") + " " +
                 "備註: " + contentValues.getAsString("comment") + "\n" +
-                "金額: " + String.valueOf(contentValues.getAsInteger("amount")) + "\n";
+                "金額: " + String.valueOf(contentValues.getAsInteger("amount"));
         return string;
     }
 }

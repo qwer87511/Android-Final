@@ -146,6 +146,9 @@ public class MainActivity extends AppCompatActivity {
                     catch (IllegalStateException e) {
                         Toast.makeText(MainActivity.this, "請先點擊 「帳目紀錄」 再點擊 「帳目分析」", Toast.LENGTH_LONG).show();
                     }
+                    catch (NullPointerException e) {
+
+                    }
 
                     break;
                 default:
